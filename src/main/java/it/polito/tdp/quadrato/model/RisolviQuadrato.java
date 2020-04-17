@@ -8,6 +8,67 @@ public class RisolviQuadrato {
 	private int N2 ; // numero di caselle (N^2)
 	private int magica ; // costante magica
 	
+	private List<List<Integer>> soluzioni;
+	
+	public RisolviQuadrato(int N) {
+		this.N = N;
+		this.N2 = N*N;
+		this.magica = N*(N2+1)/2;
+	}
+	
+	// Calcola tutti i quadrati magici
+	public List<List<Integer>> quadrati() {
+		
+		List<Integer> parziale = new ArrayList<>();
+		int livello = 0;
+		
+		this.soluzioni = new ArrayList<List<Integer>>();
+		
+		cerca(parziale, livello);
+		
+		return this.soluzioni;
+	}
+	
+	// procedura ricorsiva (privata)
+	private void cerca(List<Integer> parziale, int livello) {
+		
+		if(livello == N2) {
+			// caso terminale
+			if(controlla(parziale)) {
+				// e' magico
+				System.out.println(parziale);
+				// this.soluzioni.add(parziale);
+				/*
+				 *  Non posso aggiungere parziale alle soluzioni,
+				 *  semplicemente perche' parziale e'un riferimento
+				 *  ad un oggetto che poi verra' muatato all'interno
+				 *  del metodo cerca, fino a che, ritornando a ritroso
+				 *  fino al livello 0, parziale non verra' impostato
+				 *  ad ArrayList vuota
+				 */
+				this.soluzioni.add(new ArrayList(parziale));
+			}
+			return;
+		}
+		
+		// controlli intermedi, quando il livello e' multiplo di N (righe complete)
+		// se livello e' multiplo di N
+		if(livello%N == 0 && livello!=0) {
+			if(!controllaRiga(parziale, livello/N-1))
+				return; // potatura (pruning) dell'albero di ricerca
+		}
+		
+		
+		// caso intermedio
+		for(int valore = 1; valore <= N2; valore++) {
+			if(!parziale.contains(valore)) {
+				// prova 'valore'
+				parziale.add(valore);
+				cerca(parziale, livello+1);
+				parziale.remove(parziale.size() -1);
+			}
+		}
+	}
 	
 	/**
 	 * Verifica se una soluzione rispetta tutte le somme
@@ -55,5 +116,13 @@ public class RisolviQuadrato {
 			return false ;
 
 		return true ;
+	}
+	
+	private boolean controllaRiga(List<Integer> parziale, int riga) {
+		int somma = 0;
+		
+		for(int col=0; col<N; col++)
+			somma+=parziale.get(riga*N+col);
+		return somma==magica;
 	}
 }
